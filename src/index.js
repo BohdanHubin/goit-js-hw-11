@@ -2,7 +2,7 @@
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import  fetchImages  from './partials/fetchImages'
+import  fetchImages  from './js/fetchImages'
 
 
 const formRef = document.querySelector('.search-form');
@@ -11,7 +11,7 @@ const loadMoreButton = document.querySelector('.load-more');
 const textМessageAboutGallery = document.querySelector('.text-message');
 
 
-function renderPictureCard(picture) {
+ function renderPictureCard(picture) {
   const markup = picture.map(({webformatURL,largeImageURL,tags,likes,views,comments,downloads,}) => {
         return `<div class='photo-card'>
   <a href='${largeImageURL}'>
@@ -52,15 +52,18 @@ formRef.addEventListener('submit', onSubmit);
 
 async function onSubmit(event) {
   event.preventDefault();
-  searchQuery = event.currentTarget.searchQuery.value;
+  searchQuery = event.currentTarget.searchQuery.value.trim();
   
-  if (searchQuery === '') {
-    Notify.warning('The search field is empty! Please, enter a search term')
+  if (!searchQuery) {
+      Notify.warning('The search field is empty! Please, enter a search term')
+      formRef.reset()
     return;
   }
+    
 
-  const response = await fetchImages(searchQuery, currentPage);
-  currentHits = response.hits.length;
+    const dataFetch = await fetchImages(searchQuery, currentPage);
+    const response = await dataFetch.data;
+    currentHits = response.hits.length;
 
   if (response.totalHits > 40) {
     loadMoreButton.classList.remove('is-hidden');
@@ -88,6 +91,7 @@ async function onSubmit(event) {
       loadMoreButton.classList.add('is-hidden');
       textМessageAboutGallery.classList.add('is-hidden');
     }
+      
   } catch (error) {
     console.log(error);
   }
@@ -97,7 +101,8 @@ loadMoreButton.addEventListener('click', clickOnLoadMoreButton);
 
 async function clickOnLoadMoreButton() {
   currentPage += 1;
-  const response = await fetchImages(searchQuery, currentPage);
+    const dataFetch = await fetchImages(searchQuery, currentPage);
+    const response = await dataFetch.data;
   renderPictureCard(response.hits);
   lightbox.refresh();
   currentHits += response.hits.length;
