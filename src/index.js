@@ -53,7 +53,7 @@ formRef.addEventListener('submit', onSubmit);
 async function onSubmit(event) {
   event.preventDefault();
   searchQuery = event.currentTarget.searchQuery.value.trim();
-  
+  currentPage = 1;
   if (!searchQuery) {
       Notify.warning('The search field is empty! Please, enter a search term')
       formRef.reset()
@@ -86,8 +86,8 @@ async function onSubmit(event) {
       });
     }
     if (response.totalHits === 0) {
-      galleryItems.innerHTML = '';
-      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+        galleryItems.innerHTML = '';
+        Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       loadMoreButton.classList.add('is-hidden');
       textМessageAboutGallery.classList.add('is-hidden');
     }
